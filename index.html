@@ -1,56 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <!-- https://handsontable.com/docs/8.3.2/tutorial-quick-start.html -->
+<!-- https://handsontable.com/docs/8.3.2/tutorial-load-and-save.html -->
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/handsontable@8.3.2/dist/handsontable.full.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/handsontable@8.3.2/dist/handsontable.full.min.css" rel="stylesheet"
-        media="screen">
+  <script src="https://unpkg.com/erpify-connector@1.0.23/erpify-connector.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/handsontable@8.3.2/dist/handsontable.full.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/handsontable@8.3.2/dist/handsontable.full.min.css" rel="stylesheet"
+    media="screen">
+  <script src="https://code.jquery.com/jquery-3.5.0.min.js"
+    integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
 
-    <script>
-        function onload() {
-
-
-            const data = [
-                ['', 'Tesla', 'Volvo', 'Toyota', 'Ford'],
-                ['2019', 10, 11, 12, 13],
-                ['2020', 20, 11, 14, 13],
-                ['2021', 30, 15, 12, 13]
-            ];
-
-            const container = document.getElementById('example');
-            const hot = new Handsontable(container, {
-                data: data,
-                rowHeaders: true,
-                stretchH: 'all',
-                autoWrapRow: true,
-                minSpareRows: 1,
-                width: 806,
-                contextMenu: true,
-                colHeaders: [
-                    'ID',
-                    'Tesla',
-                    'Volvo',
-                    'Toyota',
-                    'Ford',
-                ],
-                licenseKey: 'non-commercial-and-evaluation'
-            });
+  <script>
+    async function onload() {
+      erpify = new window.ErpifyConnector()
+      erpify.debug = true
+      erpify.setLanguageCode('ENG');
+      await erpify.connect('http://localhost:22222', 'skytte_dk', 'dit5740')
 
 
-            document.getElementById('example').setAttribute("style", 'display: block');
+      let modelPackage = await erpify.sendRequest("Server", "getModels", {})
+      $('#models').empty();
+      $.each(modelPackage.response.data, async function (i, p) {
+        $('#models').append($('<option></option>').val(p).html(p));
+      });
 
-        }
-    </script>
+
+      $("#models").change(async function () {
+        loadModel($('#models').val())
+      });
+
+            //Load default model
+            $("#models").val("User");
+        loadModel($('#models').val())
+
+
+      async function loadModel(modelName) {
+
+        let schemaPackage = await erpify.sendRequest("Data", "getSchemaHandson", {
+          "modelName": modelName
+        })
+
+        let dataPackage = await erpify.sendRequest("Data", "loadRecordSet", {
+          "modelName": modelName,
+          "filter": "",
+          "paging": ""
+        })
+
+
+  
+
+
+        $('#dataGrid').empty();
+
+        const container = document.getElementById('dataGrid');
+        const hot = new Handsontable(container, {
+          data: dataPackage.response.data.rows,
+          colHeaders: schemaPackage.response.data.captions,
+          columns: schemaPackage.response.data.columns,
+          rowHeaders: true,
+          //stretchH: 'all',
+          autoWrapRow: true,
+          filters: true,
+          dropdownMenu: true,
+          /*
+          columnSorting: {
+            indicator:true,
+            sortEmptyCells: false,
+            initialConfig: {
+              column: 0,
+              sortOrder: 'asc'
+            }
+          },
+          */
+          minSpareRows: 1,
+          width: 806,
+          contextMenu: false,
+          licenseKey: 'non-commercial-and-evaluation',
+          afterChange: async function (change, source) {
+            if (source === 'loadData') {
+              return; //don't save this change
+            }
+            if (source === 'edit') {
+              const rowIndex = change[0][0]
+              const columnName = change[0][1]
+              const oldValue = change[0][2]
+              const newValue = change[0][3]
+              if (oldValue != newValue) {
+                
+                let package = await erpify.sendRequest("Data", "updateField", {
+                  "modelName": "User",
+                  "id": rowIndex + 1,
+                  "columnName": columnName,
+                  "value": newValue
+                })
+              }
+            }
+          }
+        });
+
+        //const filtersPlugin = hot.getPlugin('filters');
+        //filtersPlugin.addCondition(0, 'gt', [1]);
+        //filtersPlugin.filter();
+
+      }
+
+
+      document.getElementById('dataGrid').setAttribute("style", 'display: block');
+
+
+    }
+
+  </script>
 </head>
 
 <body onload="onload();">
 
-    <div id="example"></div>
+  <label for="models" style="display: inline-block;width:100px">Model</label>
+  <select id="models" style="width:200px;margin-bottom:20px"></select>
+  <br>
+
+  <div id="dataGrid"></div>
 
 
 </body>
