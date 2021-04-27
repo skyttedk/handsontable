@@ -2,7 +2,13 @@
 <html lang="en">
 <!-- https://handsontable.com/docs/8.3.2/tutorial-quick-start.html -->
 <!-- https://handsontable.com/docs/8.3.2/tutorial-load-and-save.html -->
+<!--
+  reload entire row when selectde
+  reload field when selected
+  create a json editor...
+  other customer editors ???
 
+-->
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -91,11 +97,12 @@
               const columnName = change[0][1]
               const oldValue = change[0][2]
               const newValue = change[0][3]
+              const row = hot.getSourceData()[0] 
               if (oldValue != newValue) {
                 
                 let package = await erpify.sendRequest("Data", "updateField", {
-                  "modelName": "User",
-                  "id": rowIndex + 1,
+                  "modelName": $('#models').val(),
+                  "id": row.id,
                   "columnName": columnName,
                   "value": newValue
                 })
