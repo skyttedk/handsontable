@@ -7,10 +7,18 @@
   reload field when selected  - ok
   show errors and messages - ok
   alignment based on datatype - ok
-
-  non editable fields--shouldnot be editable
+  ERROR: Når man tagger, triggers afterSelection før onchange - ok
+  non editable fields--shouldnot be editable - ok 
   
-  ERROR: Når man tagger, triggers afterSelection før onchange !! -- det er ærgeligt.!
+  delete row
+  insert row
+
+  // Når vi får response fra server, ifm. update behøver vi ikke hent current row, da vi jo får den med tilbage me det samnme.
+  derfor skal updateRow, skilles af i en getRecoredFromServer, UpdateRow, og en ConvertErpifyRecordToHendsonRecord
+
+
+
+
   Time / date felter  vises kuin noge bganel
 
   Json, custom editer
@@ -133,7 +141,6 @@
           contextMenu: false,
           licenseKey: 'non-commercial-and-evaluation',
           afterChange: async function (change, source) {
-            console.log("modifyData")
             if (source === 'loadData') {
               return; //don't save this change
             }
@@ -142,14 +149,15 @@
               const columnName = change[0][1]
               const oldValue = change[0][2]
               const newValue = change[0][3]
-              const row = hot.getSourceData()[0]
+              
+              const row = window.hot.getData()[rowIndex]
+
               if (oldValue != newValue) {
-                console.log("after Change")
                 // Update field on server
                 try {
                   let package = await erpify.sendRequest("Data", "updateField", {
                     "modelName": $('#models').val(),
-                    "id": row.id,
+                    "id": row[0],
                     "columnName": columnName,
                     "value": newValue
                   })
@@ -158,12 +166,10 @@
                   $('#errorLabel').text(`Error(${error.response.systemLogId}): ` + error.response.message);
                   setTimeout(() => $('#errorLabel').text(''), 3000)
                 }
+                //Always fetch rowdata from server
                 reloadRow(rowIndex)
               }
-              //Always fetch rowdata from server
-              
             }
-
           },
           afterSelection: async (row, column, row2, column2, preventScrolling, selectionLayerLevel) => {
 
