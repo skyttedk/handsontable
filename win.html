@@ -3,13 +3,19 @@
 <!-- https://handsontable.com/docs/8.3.2/tutorial-quick-start.html -->
 <!-- https://handsontable.com/docs/8.3.2/tutorial-load-and-save.html -->
 <!--
-  reload entire row when selectde<-niiice
-  reload field when selected  <- niiice !
-  show errors and messages <-nice
+  reload entire row when selectde - ok
+  reload field when selected  - ok
+  show errors and messages - ok
+  alignment based on datatype - ok
+
   non editable fields--shouldnot be editable
   
   ERROR: Når man tagger, triggers afterSelection før onchange !! -- det er ærgeligt.!
+  Time / date felter  vises kuin noge bganel
 
+  Json, custom editer
+  test , custom editor
+  opslag i relatedere tabeller med handsontable
 
   Could we create runtime updates on every field (you know realtime !!) ???
   //Der er noget galt med date time felter...
@@ -31,13 +37,25 @@
   <script type="text/javascript" src="js/ext-all-debug.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/handsontable@8.3.2/dist/handsontable.full.min.js"></script>
 
-  <link href="https://cdn.jsdelivr.net/npm/handsontable@8.3.2/dist/handsontable.full.min.css" rel="stylesheet" media="screen">
-  <link rel="stylesheet" href="css/ext-theme-gray-all.css" />  
+  <link href="https://cdn.jsdelivr.net/npm/handsontable@8.3.2/dist/handsontable.full.min.css" rel="stylesheet"
+    media="screen">
+  <link rel="stylesheet" href="css/ext-theme-gray-all.css" />
 
 
   <script>
+
+    window.hot = {}
+
+    window.previousRow = -1
+    window.previousColumn = -1
+    window.previousValue = null
+
+    window.currentRow = -1
+    window.currentColumn = -1
+    window.currentValue = null
+
     async function onload() {
-        alert("FUUT")
+
       erpify = new window.ErpifyConnector()
       erpify.debug = true
       erpify.setLanguageCode('ENG');
@@ -69,6 +87,12 @@
           "modelName": modelName
         })
 
+        //console.log(schemaPackage);
+        //for (var column of schemaPackage.response.data.columns) {
+        //  console.log(column)
+        //  
+        //}
+
         let dataPackage = await erpify.sendRequest("Data", "loadRecordSet", {
           "modelName": modelName,
           "filter": "",
@@ -76,13 +100,10 @@
         })
 
 
-
-
-
         $('#dataGrid').empty();
 
         const container = document.getElementById('dataGrid');
-        const hot = new Handsontable(container, {
+        window.hot = new Handsontable(container, {
           data: dataPackage.response.data.rows,
           colHeaders: schemaPackage.response.data.captions,
           columns: schemaPackage.response.data.columns,
@@ -100,23 +121,30 @@
               sortOrder: 'asc'
             }
           },
+          tabMoves11: async function (event) {
 
+
+            //await hot.runHooks('afterChange');
+            //console.log(event)
+            return { row: 0, col: 1 };
+          },
           minSpareRows: 1,
           width: 806,
           contextMenu: false,
           licenseKey: 'non-commercial-and-evaluation',
-          beforeChange: async function (change, source) {
+          afterChange: async function (change, source) {
+            console.log("modifyData")
             if (source === 'loadData') {
               return; //don't save this change
             }
-            if (source === 'edit') {
+            if (source === 'edit' || source === undefined) {
               const rowIndex = change[0][0]
               const columnName = change[0][1]
               const oldValue = change[0][2]
               const newValue = change[0][3]
               const row = hot.getSourceData()[0]
               if (oldValue != newValue) {
-                console.log("before Change")
+                console.log("after Change")
                 // Update field on server
                 try {
                   let package = await erpify.sendRequest("Data", "updateField", {
@@ -128,20 +156,20 @@
 
                 } catch (error) {
                   $('#errorLabel').text(`Error(${error.response.systemLogId}): ` + error.response.message);
-                  reloadRow(hot,rowIndex)
                   setTimeout(() => $('#errorLabel').text(''), 3000)
                 }
-
+                reloadRow(rowIndex)
               }
+              //Always fetch rowdata from server
+              
             }
 
           },
           afterSelection: async (row, column, row2, column2, preventScrolling, selectionLayerLevel) => {
-            // setting if prevent scrolling after selection
+
+
             if (row > -1) {
-              console.log("afterSelectionByProp")
-              reloadRow(hot,row)
-              preventScrolling.value = true;
+             // preventScrolling.value = true;
             }
           },
           afterRemoveRow: () => console.log("remove")
@@ -158,9 +186,11 @@
 
 
     }
-    async function reloadRow(hot, index) {//const selectedRow = hot.getSourceData()[row] //Original data
+
+
+    async function reloadRow(index) {//const selectedRow = hot.getSourceData()[row] //Original data
       //const selectedRow = hot.getSourceData()[row] //Original data
-      const selectedRow = hot.getData()[index] //Current Data(Filtered and sorted)
+      const selectedRow = window.hot.getData()[index] //Current Data(Filtered and sorted)
       const id = selectedRow[0]
       let package = await erpify.sendRequest("Data", "getRecord", {
         "modelName": $('#models').val(),
@@ -173,6 +203,15 @@
         recordArray.push(recordField)
       }
       hot.setDataAtRowProp(recordArray)
+    }
+
+    //
+    function customDropDownRender(instance, td, row, col, prop, value, cellProperties) {
+      Handsontable.renderers.AutocompleteRenderer.apply(this, arguments);
+      var ddsource = ['Select', 'opt1', 'opt2', 'opt3', 'opt4'];
+      cellProperties.data = 'options',
+        cellProperties.type = 'dropdown';
+      cellProperties.source = ddsource;
     }
   </script>
 </head>
