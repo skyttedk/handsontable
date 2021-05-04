@@ -45,6 +45,19 @@
       let win= new WindowFactory();
 			win.init();
 
+
+		Ext.Ajax.request({
+			url: 'win.html',
+			success: function(response){
+			   Ext.getCmp('panel-1003').update(response.responseText,true);
+			   
+				console.log(response);
+				// response.responseText will have your html content
+				// you can then feed it into your component using update()
+			}
+		});
+
+
       /*
       //Connect
       await erpify.connect('http://localhost:22222', 'skytte_dk', 'dit5740')
