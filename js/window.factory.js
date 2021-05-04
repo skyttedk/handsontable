@@ -13,7 +13,8 @@ var WindowFactory = function () {
 			//Create a panelwith som tabs on
 			var pnl = Ext.create("Ext.tab.Panel", {
 				id : "bob",
-				bodyPadding: 5,
+				bodyPadding: 0,
+				bodyStyle: "margin:0px",
 				resizable: true,
 				layout: "fit",
 				autoLoad: true, items: [
@@ -45,6 +46,7 @@ var WindowFactory = function () {
 			//Create the window
 			Ext.define("window.Debug", {
 				extend: "Ext.window.Window",
+				id  :"bob2",
 				title: "Hello",
 				width: 500,
 				height: 400,
@@ -80,7 +82,7 @@ var WindowFactory = function () {
 					}
 				],
 				*/
-				items: [pnl]
+				//items: [pnl]
 			});
 
 
