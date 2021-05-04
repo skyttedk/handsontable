@@ -1,6 +1,7 @@
 
 
 
+
   <script>
 
     window.hot = {}
@@ -71,7 +72,8 @@
           autoWrapRow: true,
           filters: true,
           dropdownMenu: true,
-
+          contextMenu: ['remove_row'],
+          licenseKey: 'non-commercial-and-evaluation',
           columnSorting: {
             indicator: true,
             sortEmptyCells: false,
@@ -89,8 +91,22 @@
           },
           minSpareRows: 1,
           width: 806,
-          contextMenu: false,
-          licenseKey: 'non-commercial-and-evaluation',
+
+          beforeRemoveRow: async function (index, amount, physicalRows, source) {
+            const row = window.hot.getData()[index]
+            try {
+                  let package = await erpify.sendRequest("Data", "deleteRecord", {
+                    "modelName": $('#models').val(),
+                    "id": row[0]
+                  })
+
+                } catch (error) {
+                  $('#errorLabel').text(`Error(${error.response.systemLogId}): ` + error.response.message);
+                  setTimeout(() => $('#errorLabel').text(''), 3000)
+                }
+
+          },
+          afterRemoveRow: () => console.log(""),
           afterChange: async function (change, source) {
             if (source === 'loadData') {
               return; //don't save this change
@@ -100,7 +116,7 @@
               const columnName = change[0][1]
               const oldValue = change[0][2]
               const newValue = change[0][3]
-              
+
               const row = window.hot.getData()[rowIndex]
 
               if (oldValue != newValue) {
@@ -126,10 +142,10 @@
 
 
             if (row > -1) {
-             // preventScrolling.value = true;
+              // preventScrolling.value = true;
             }
           },
-          afterRemoveRow: () => console.log("remove")
+          
         });
 
         //const filtersPlugin = hot.getPlugin('filters');
