@@ -1,36 +1,26 @@
-
-
-
-
   <script>
 
     window.hot = {}
-
     window.previousRow = -1
     window.previousColumn = -1
     window.previousValue = null
-
     window.currentRow = -1
     window.currentColumn = -1
     window.currentValue = null
-
     async function onload() {
 
       erpify = new window.ErpifyConnector()
       erpify.debug = true
       erpify.setLanguageCode('ENG');
 
-
       //Connect
       await erpify.connect('http://localhost:22222', 'skytte_dk', 'dit5740')
-
 
       let modelPackage = await erpify.sendRequest("Server", "getModels", {})
       $('#models').empty();
       $.each(modelPackage.response.data, async function (i, p) {
         $('#models').append($('<option></option>').val(p).html(p));
       });
-
 
       $("#models").change(async function () {
         loadModel($('#models').val())
@@ -39,7 +29,6 @@
       //Load default model
       $("#models").val("User");
       loadModel($('#models').val())
-
 
       async function loadModel(modelName) {
 
@@ -90,7 +79,7 @@
             return { row: 0, col: 1 };
           },
           minSpareRows: 1,
-          width: 806,
+          //width: 806,
 
           beforeRemoveRow: async function (index, amount, physicalRows, source) {
             const row = window.hot.getData()[index]
@@ -139,10 +128,12 @@
             }
           },
           afterSelection: async (row, column, row2, column2, preventScrolling, selectionLayerLevel) => {
-
+            //Obsolete??
 
             if (row > -1) {
-              // preventScrolling.value = true;
+              reloadRow(row) tuungt
+               preventScrolling.value = true;
+              
             }
           },
           
@@ -160,8 +151,9 @@
 
     }
 
-
+  //hmm event etv. virker ikke i window
     async function reloadRow(index) {//const selectedRow = hot.getSourceData()[row] //Original data
+      
       //const selectedRow = hot.getSourceData()[row] //Original data
       const selectedRow = window.hot.getData()[index] //Current Data(Filtered and sorted)
       const id = selectedRow[0]
