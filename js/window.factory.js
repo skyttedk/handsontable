@@ -12,7 +12,9 @@ var WindowFactory = function () {
 
 			//Create a panelwith som tabs on
 			var pnl = Ext.create("Ext.tab.Panel", {
-				bodyPadding: 5,
+				id : "bob",
+				bodyPadding: 0,
+				bodyStyle: "margin:0px",
 				resizable: true,
 				layout: "fit",
 				autoLoad: true, items: [
@@ -30,9 +32,11 @@ var WindowFactory = function () {
 					{
 						title: "REmote",
 						loader: {  // Hmm vi kan lave noget loading stuff here
-							autoLoad: true,
-							useDefaultXhrHeader: true,
-							url: "win.html"
+							//autoLoad: true,
+							//useDefaultXhrHeader: true,
+							//url :"http://www.google.com"
+							//url: "wintest.html"
+							
 						}
 					}
 					
@@ -42,6 +46,7 @@ var WindowFactory = function () {
 			//Create the window
 			Ext.define("window.Debug", {
 				extend: "Ext.window.Window",
+				id  :"bob2",
 				title: "Hello",
 				width: 500,
 				height: 400,
@@ -77,7 +82,7 @@ var WindowFactory = function () {
 					}
 				],
 				*/
-				items: [pnl]
+				//items: [pnl]
 			});
 
 
