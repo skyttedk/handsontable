@@ -2,9 +2,9 @@ var WindowFactory = function () {
 	return {
 		id: null,
 		init: function (modelName) {
-			// do stuff
-			//this.id = guid();
-			//Create a panelwith som tabs on
+
+			/*
+			// Create panel
 			var pnl = Ext.create("Ext.tab.Panel", {
 				bodyPadding: 0,
 				bodyStyle: "margin:0px",
@@ -13,8 +13,9 @@ var WindowFactory = function () {
 				monitorResize: true,
 				autoLoad: true,
 			});
+		*/
 
-			//Create the window
+			// Create the window
 			Ext.define("window.Debug", {
 				extend: "Ext.window.Window",
 				id: createGuid(),
@@ -51,7 +52,6 @@ var WindowFactory = function () {
 				tbar: [
 					{
 						text: "Window",
-
 						menu: [
 							{
 								text: "Open File",
@@ -82,7 +82,6 @@ var WindowFactory = function () {
 						menu: ["Help", "About Erpify",]
 					}
 				],
-
 				//items: [pnl]
 			});
 			var w = Ext.create('window.Debug', { renderTo: Ext.getBody() }).show();
@@ -97,7 +96,7 @@ var WindowFactory = function () {
 				},
 				success: async (response, x, y) => {
 					Ext.getCmp(windowId).update(response.responseText, true, async () => {
-						window.loadModel(modelName); denne logger joglobaltr,,det skal den ikke
+						window.loadModel(modelName); // denne logger joglobaltr,,det skal den ikke
 					});
 				}, failure: function () {
 					console.log('Failed to load model ' + modelName);

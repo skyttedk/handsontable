@@ -3,12 +3,6 @@
 <!-- https://handsontable.com/docs/8.3.2/tutorial-quick-start.html -->
 <!-- https://handsontable.com/docs/8.3.2/tutorial-load-and-save.html -->
 <!--
-  reload entire row when selectde<-niiice
-  reload field when selected  <- niiice !
-  show errors and messages <-nice
-  non editable fields--shouldnot be editable
-  ERROR: Når man tagger, triggers afterSelection før onchange !! -- det er ærgeligt.!
-
 
   Could we create runtime updates on every field (you know realtime !!) ???
   //Der er noget galt med date time felter...
@@ -27,23 +21,16 @@
   <script src="https://code.jquery.com/jquery-3.5.0.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/erpify-connector/erpify-connector.js"></script>
   <script type="text/javascript" src="js/window.factory.js"></script>
+  <script type="text/javascript" src="js/menu.factory.js"></script>
   <script type="text/javascript" src="js/ext-all-debug.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/handsontable@8.3.2/dist/handsontable.full.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/handsontable@8.3.2/dist/handsontable.full.min.css" rel="stylesheet" media="screen">
+  <link href="https://cdn.jsdelivr.net/npm/handsontable@8.3.2/dist/handsontable.full.min.css" rel="stylesheet"
+    media="screen">
   <link rel="stylesheet" href="css/ext-theme-gray-all.css" />
+  <link rel="stylesheet" href="css/test.css" />
   <script>
 
-    //2. Create date for model.
-    var modelData = {
-      children: [
-        { text: 'Models', expanded: true, children: [] },
-        { text: 'Controllers', expanded: false, children: [] },
-        { text: 'Views', expanded: false, children: [] },
-        { text: 'Sheduled Tasks', expanded: false, children: [] },
-        { text: 'Reports', expanded: false, children: [] }
-      ]
-    }
-
+   
     //https://docs.huihoo.com/extjs/4.0/docs/api/Ext.tree.TreeNode.html
     //https://fiddle.sencha.com/#fiddle/1s5k&view/editor
     //https://docs.sencha.com/extjs/6.2.1/modern/Ext.data.proxy.Memory.html
@@ -52,54 +39,14 @@
 
 
       erpify = new window.ErpifyConnector()
-      erpify.debug = false
+      erpify.debug = true
       erpify.setLanguageCode('ENG');
 
       await erpify.connect('http://localhost:22222', 'skytte_dk', 'dit5740')
 
-      let modelPackage = await erpify.sendRequest("Server", "getModels", {})
-      for (var model of modelPackage.response.data) {
-        modelData.children[0].children.push({ text: model, leaf: true })
-      }
+      let menu = new MenuFactory();
+      menu.init();
 
-      //3. Create memory proxy store
-      //note how we set the 'root' in the reader to match the data structure above
-      var store = Ext.create('Ext.data.TreeStore', {
-        autoLoad: true,
-        data: modelData,
-        expanded: true,
-        root: {
-          text: 'root',
-          expanded: false
-        },
-        proxy: {
-          type: 'memory',
-          reader: {
-            type: 'json',
-            rootProperty: 'children'
-          }
-        }
-      });
-
-      var tree = Ext.create('Ext.tree.Panel', {
-        title: 'Database',
-        width: 200,
-        height: 500,
-        store: store,
-        rootVisible: false,
-        renderTo: Ext.getBody(),
-        listeners: {
-          //itemclick: function (s, r) {
-          //},
-          itemdblclick: function (tree, record, index) {
-            const modelName = record.raw.text
-            let win = new WindowFactory();
-            const WinId = win.init(modelName);
-            
-            win.loadModel(WinId,modelName)
-          }
-        }
-      });
     }
   </script>
 </head>
