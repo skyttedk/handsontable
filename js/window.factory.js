@@ -1,30 +1,24 @@
 var WindowFactory = function () {
 	return {
-
-
 		id: null,
 		init: function (view) {
 			// do stuff
-
-
 			//this.id = guid();
-
-
 			//Create a panelwith som tabs on
 			var pnl = Ext.create("Ext.tab.Panel", {
-				id : "bob",
+				id: "bob",
 				bodyPadding: 0,
 				bodyStyle: "margin:0px",
 				resizable: true,
 				layout: "fit",
 				monitorResize: true,
-				autoLoad: true, 
+				autoLoad: true,
 			});
 
 			//Create the window
 			Ext.define("window.Debug", {
 				extend: "Ext.window.Window",
-				id  :"bob2",
+				id: "bob2",
 				title: "Hello",
 				width: 500,
 				height: 400,
@@ -45,11 +39,11 @@ var WindowFactory = function () {
 							alert(error)
 						}
 					},
-					resize : (parentWindow) => {
+					resize: (parentWindow) => {
 						//alert("mk")
 						//TODO: Resize panel content here
-						$('#dataGrid').width(parentWindow.width-20); //virker.. men find paretny
-						$('#dataGrid').height(parentWindow.height-20); //virker.. men find paretny
+						$('#dataGrid').width(parentWindow.width - 20); //virker.. men find paretny
+						$('#dataGrid').height(parentWindow.height - 20); //virker.. men find paretny
 
 					}
 				},
@@ -58,52 +52,68 @@ var WindowFactory = function () {
 				tbar: [
 					{
 						text: "Window",
-						
+
 						menu: [
 							{
-								text:"Open File", 
+								text: "Open File",
 								icon: 'css/images/menu/default-checked.gif',
 								cls: 'x-btn-text-icon',
 								tooltip: '<b>Quick Tips</b><br/>Icon only button with tooltip<br><b>Activated on mousedown</b>',
 								handler: onMenuClick
-							},							{
-								text:"Calendar", 
+							}, {
+								text: "Calendar",
 								icon: 'css/images/shared/calendar.gif',
 								cls: 'x-btn-text-icon',
 								tooltip: '<b>Quick Tips</b><br/>Icon only button with tooltip<br><b>Activated on mousedown</b>',
 								handler: onMenuClick
 							}
 						]
-					} , {
+					}, {
 						text: "Edit",
-						menu: ["Cut","Copy","Paste"]
+						menu: ["Cut", "Copy", "Paste"]
 					}, {
 						//file:///C:/Users/kss/Skrivebord/N%C3%B8rd%20Ting/erpify/erpify.desktop/ext%20js/ext-5.1.0-gpl/ext-5.1.0/build/examples/simple-widgets/editor.html?theme=crisp-touch
 						text: "View",
-						menu: ["Form  View","",""]
+						menu: ["Form  View", "", ""]
 					}, {
 						text: "Data",
-						menu: ["Refresh","Import","Export"]
+						menu: ["Refresh", "Import", "Export"]
 					}, {
 						text: "Help",
-						menu: ["Help","About Erpify",]
+						menu: ["Help", "About Erpify",]
 					}
 				],
-			
+
 				//items: [pnl]
 			});
-
-	
 			var w = Ext.create('window.Debug', { renderTo: Ext.getBody() }).show();
 
-		
+		}, loadModel: function (modelName) {
+
+			Ext.Ajax.request({
+				url: 'view.model.html',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				jsonData: true,
+				method: 'GET',
+				success: async function (response) {
+
+					Ext.getCmp('bob2').update(response.responseText, true, async () => {
+						//All righty theeeen!!
+						window.loadModel(modelName);
+					});
 
 
+				}, failure: function () {
+					console.log('Failed to load model ' + modelName);
+				}
+			});
 		}
 	}
 }
 
 function onMenuClick() {
-	alert("Click")				
+	alert("Click")
 }
 

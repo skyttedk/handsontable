@@ -1,0 +1,143 @@
+<script>
+
+  window.hot = {}
+  window.previousRow = -1
+  window.previousColumn = -1
+  window.previousValue = null
+  window.currentRow = -1
+  window.currentColumn = -1
+  window.currentValue = null
+
+
+  async function onload(model) {
+    //TODO:
+    document.getElementById('dataGrid').setAttribute("style", 'display: block');
+  }
+
+  async function loadModel(modelName) {
+
+    let schemaPackage = await window.erpify.sendRequest("Data", "getSchemaHandson", {
+      "modelName": modelName
+    })
+
+
+    let dataPackage = await window.erpify.sendRequest("Data", "loadRecordSet", {
+      "modelName": modelName,
+      "filter": "",
+      "paging": ""
+    })
+
+    const container = document.getElementById('dataGrid');
+    window.hot = new Handsontable(container, {
+      data: dataPackage.response.data.rows,
+      colHeaders: schemaPackage.response.data.captions,
+      columns: schemaPackage.response.data.columns,
+      rowHeaders: true,
+      //stretchH: 'all',
+      autoWrapRow: true,
+      filters: true,
+      dropdownMenu: true,
+      contextMenu: ['remove_row'],
+      licenseKey: 'non-commercial-and-evaluation',
+      columnSorting: {
+        indicator: true,
+        sortEmptyCells: false,
+        initialConfig: {
+          column: 0,
+          sortOrder: 'asc'
+        }
+      },
+      tabMoves11: async function (event) {
+        //await hot.runHooks('afterChange');
+        //console.log(event)
+        return { row: 0, col: 1 };
+      },
+      minSpareRows: 1,
+      //width: 806,
+
+      beforeRemoveRow: async function (index, amount, physicalRows, source) {
+        const row = window.hot.getData()[index]
+        try {
+          let package = await window.erpify.sendRequest("Data", "deleteRecord", {
+            "modelName": modelName,
+            "id": row[0]
+          })
+
+        } catch (error) {
+          $('#errorLabel').text(`Error(${error.response.systemLogId}): ` + error.response.message);
+          setTimeout(() => $('#errorLabel').text(''), 3000)
+        }
+
+      },
+      afterRemoveRow: () => console.log(""),
+      afterChange: async function (change, source) {
+        if (source === 'loadData') {
+          return; //don't save this change
+        }
+        if (source === 'edit' || source === undefined) {
+          const rowIndex = change[0][0]
+          const columnName = change[0][1]
+          const oldValue = change[0][2]
+          const newValue = change[0][3]
+
+          const row = window.hot.getData()[rowIndex]
+
+          if (oldValue != newValue) {
+            // Update field on server
+            try {
+              let package = await window.erpify.sendRequest("Data", "updateField", {
+                "modelName": modelName,
+                "id": row[0],
+                "columnName": columnName,
+                "value": newValue
+              })
+
+            } catch (error) {
+              $('#errorLabel').text(`Error(${error.response.systemLogId}): ` + error.response.message);
+              setTimeout(() => $('#errorLabel').text(''), 3000)
+            }
+            //Always fetch rowdata from server
+            reloadRow(modelName,rowIndex)
+          }
+        }
+      },
+      afterSelection: async (row, column, row2, column2, preventScrolling, selectionLayerLevel) => {
+        //Obsolete??
+
+        if (row > -1) {
+          //reloadRow(modelNamerow);
+          preventScrolling.value = true;
+
+        }
+      },
+
+    });
+
+    //const filtersPlugin = hot.getPlugin('filters');
+    //filtersPlugin.addCondition(0, 'gt', [1]);
+    //filtersPlugin.filter();
+
+  }
+
+  //hmm event etv. virker ikke i window
+  async function reloadRow(modelName,index) {//const selectedRow = hot.getSourceData()[row] //Original data
+
+    //const selectedRow = hot.getSourceData()[row] //Original data
+    const selectedRow = window.hot.getData()[index] //Current Data(Filtered and sorted)
+    const id = selectedRow[0]
+    let package = await window.erpify.sendRequest("Data", "getRecord", {
+      "modelName": modelName, //skal gemme model name et sted her!!
+      "id": id,
+    })
+    const record = package.response.data
+    const recordArray = []
+    for (const [key, value] of Object.entries(record)) {
+      var recordField = [index, key, value]
+      recordArray.push(recordField)
+    }
+    hot.setDataAtRowProp(recordArray)
+  }
+
+</script>
+<div id="dataGrid"></div>
+<span id="errorLabel" style="color:red"></span>
