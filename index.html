@@ -92,10 +92,11 @@
           //itemclick: function (s, r) {
           //},
           itemdblclick: function (tree, record, index) {
+            const modelName = record.raw.text
             let win = new WindowFactory();
-            const model = record.raw.text
-            win.init();
-            win.loadModel(model)
+            const WinId = win.init(modelName);
+            
+            win.loadModel(WinId,modelName)
           }
         }
       });

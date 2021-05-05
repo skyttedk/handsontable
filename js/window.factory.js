@@ -1,12 +1,11 @@
 var WindowFactory = function () {
 	return {
 		id: null,
-		init: function (view) {
+		init: function (modelName) {
 			// do stuff
 			//this.id = guid();
 			//Create a panelwith som tabs on
 			var pnl = Ext.create("Ext.tab.Panel", {
-				id: "bob",
 				bodyPadding: 0,
 				bodyStyle: "margin:0px",
 				resizable: true,
@@ -18,8 +17,8 @@ var WindowFactory = function () {
 			//Create the window
 			Ext.define("window.Debug", {
 				extend: "Ext.window.Window",
-				id: "bob2",
-				title: "Hello",
+				id: createGuid(),
+				title: modelName,
 				width: 500,
 				height: 400,
 				closable: true,
@@ -87,30 +86,29 @@ var WindowFactory = function () {
 				//items: [pnl]
 			});
 			var w = Ext.create('window.Debug', { renderTo: Ext.getBody() }).show();
+			return w.id
 
-		}, loadModel: function (modelName) {
 
+		}, loadModel: function (windowId, modelName) {
 			Ext.Ajax.request({
 				url: 'view.model.html',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				jsonData: true,
-				method: 'GET',
-				success: async function (response) {
-
-					Ext.getCmp('bob2').update(response.responseText, true, async () => {
-						//All righty theeeen!!
-						window.loadModel(modelName);
+				success: async (response, x, y) => {
+					Ext.getCmp(windowId).update(response.responseText, true, async () => {
+						window.loadModel(modelName); denne logger joglobaltr,,det skal den ikke
 					});
-
-
 				}, failure: function () {
 					console.log('Failed to load model ' + modelName);
 				}
 			});
 		}
 	}
+}
+function createGuid() {
+	const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)
+	return `__${s4() + s4()}-${s4()}-${s4()}-${s4()}-${s4() + s4() + s4()}__`
 }
 
 function onMenuClick() {
