@@ -1,4 +1,4 @@
-var WindowFactory = function () {
+var ViewFactory = function () {
 	return {
 		id: null,
 		init: function (modelName) {
@@ -16,7 +16,7 @@ var WindowFactory = function () {
 		*/
 
 			// Create the window
-			Ext.define("window.Debug", {
+			Ext.define("erpify.view.table", {
 				extend: "Ext.window.Window",
 				id: createGuid(),
 				title: modelName,
@@ -78,25 +78,30 @@ var WindowFactory = function () {
 						text: "Data",
 						menu: ["Refresh", "Import", "Export"]
 					}, {
+						text: "Reports",
+						menu: ["Report 1", "Repost 2", "Report 3"]
+					},
+					{
 						text: "Help",
 						menu: ["Help", "About Erpify",]
 					}
 				],
 				//items: [pnl]
 			});
-			var w = Ext.create('window.Debug', { renderTo: Ext.getBody() }).show();
+			var w = Ext.create('erpify.view.table', { renderTo: Ext.getBody() }).show();
 			return w.id
 
 
-		}, loadModel: function (windowId, modelName) {
+		}, loadModel: function (viewId, modelName) {
 			Ext.Ajax.request({
 				url: 'view.model.html',
 				headers: {
 					'Content-Type': 'application/json'
 				},
 				success: async (response, x, y) => {
-					Ext.getCmp(windowId).update(response.responseText, true, async () => {
-						window.loadModel(modelName); // denne logger joglobaltr,,det skal den ikke
+
+					Ext.getCmp(viewId).update(response.responseText, true, async () => {
+						window.loadModel(viewId, modelName); // denne logger joglobaltr,,det skal den ikke
 					});
 				}, failure: function () {
 					console.log('Failed to load model ' + modelName);

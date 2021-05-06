@@ -18,15 +18,21 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <script src="https://code.jquery.com/jquery-3.5.0.min.js" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/erpify-connector/erpify-connector.js"></script>
+  <script type="text/javascript" src="js/ext-all-debug.js"></script>
+
   <script type="text/javascript" src="js/window.factory.js"></script>
   <script type="text/javascript" src="js/menu.factory.js"></script>
-  <script type="text/javascript" src="js/ext-all-debug.js"></script>
+
+
+  <script src="https://unpkg.com/erpify-connector/erpify-connector.js"></script>
+  
   <script src="https://cdn.jsdelivr.net/npm/handsontable@8.3.2/dist/handsontable.full.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/handsontable@8.3.2/dist/handsontable.full.min.css" rel="stylesheet"
     media="screen">
   <link rel="stylesheet" href="css/ext-theme-gray-all.css" />
+  
   <link rel="stylesheet" href="css/test.css" />
   <script>
 
@@ -35,15 +41,15 @@
     //https://fiddle.sencha.com/#fiddle/1s5k&view/editor
     //https://docs.sencha.com/extjs/6.2.1/modern/Ext.data.proxy.Memory.html
 
-    async function onload() {
+    //Globals
+    window.openedViews = []
 
+    async function onload() {
 
       erpify = new window.ErpifyConnector()
       erpify.debug = true
       erpify.setLanguageCode('ENG');
-
       await erpify.connect('http://localhost:22222', 'skytte_dk', 'dit5740')
-
       let menu = new MenuFactory();
       menu.init();
 

@@ -1,2 +1,0 @@
-# handsontable
-Handsontable Demo

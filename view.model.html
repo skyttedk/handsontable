@@ -1,34 +1,39 @@
 <script>
 
-  window.hot = {}
-  window.previousRow = -1
-  window.previousColumn = -1
-  window.previousValue = null
-  window.currentRow = -1
-  window.currentColumn = -1
-  window.currentValue = null
+
+//Create a global array to contain all windows!!
 
 
-  async function onload(model) {
-    //TODO:
-    document.getElementById('dataGrid').setAttribute("style", 'display: block');
-  }
+  //window.hot = {}
+//  window.previousRow = -1
+//  window.previousColumn = -1
+//  window.previousValue = null
+//  window.currentRow = -1
+//  window.currentColumn = -1
+//  window.currentValue = null
 
-  async function loadModel(modelName) {
 
+
+  async function loadModel(viewId,modelName) {
+
+    //Load model schema
     let schemaPackage = await window.erpify.sendRequest("Data", "getSchemaHandson", {
       "modelName": modelName
     })
 
 
+    //Load model data
     let dataPackage = await window.erpify.sendRequest("Data", "loadRecordSet", {
       "modelName": modelName,
       "filter": "",
       "paging": ""
     })
 
+    //initialize datagrid (handsontable)
     const container = document.getElementById('dataGrid');
-    window.hot = new Handsontable(container, {
+    container.id = viewId;
+    
+    hot = new Handsontable(container, {
       data: dataPackage.response.data.rows,
       colHeaders: schemaPackage.response.data.captions,
       columns: schemaPackage.response.data.columns,
@@ -113,9 +118,9 @@
 
     });
 
-    //const filtersPlugin = hot.getPlugin('filters');
-    //filtersPlugin.addCondition(0, 'gt', [1]);
-    //filtersPlugin.filter();
+    //window.openedViews[viewId] = hot; // Push this 
+
+    //override id..
 
   }
 
@@ -139,5 +144,6 @@
   }
 
 </script>
-<div id="dataGrid"></div>
+
+<div id="dataGrid" style="display: block;"></div>
 <span id="errorLabel" style="color:red"></span>
