@@ -22,10 +22,13 @@
   <script src="https://code.jquery.com/jquery-3.5.0.min.js" crossorigin="anonymous"></script>
   <script type="text/javascript" src="js/ext-all-debug.js"></script>
 
-  <script type="text/javascript" src="js/window.factory.js"></script>
-  <script type="text/javascript" src="js/menu.factory.js"></script>
-
-
+  
+  
+  <script type="text/javascript" src="js/factory.menu.js"></script>
+  <script type="text/javascript" src="js/factory.list.js"></script>
+  <script type="text/javascript" src="js/factory.form.js"></script>
+  <script type="text/javascript" src="js/factory.viewport.js"></script>
+  
   <script src="https://unpkg.com/erpify-connector/erpify-connector.js"></script>
   
   <script src="https://cdn.jsdelivr.net/npm/handsontable@8.3.2/dist/handsontable.full.min.js"></script>
@@ -50,6 +53,10 @@
       erpify.debug = true
       erpify.setLanguageCode('ENG');
       await erpify.connect('http://localhost:22222', 'skytte_dk', 'dit5740')
+
+      let viewPort = ViewPortFactory()
+      viewPort.init()
+
       let menu = new MenuFactory();
       menu.init();
 
