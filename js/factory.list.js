@@ -22,6 +22,8 @@ var ViewFactory = function () {
 				title: modelName,
 				width: 500,
 				height: 400,
+				region: 'center',  // show this in viewport region
+				//contentEl: 'content',
 				closable: true,
 				maximizable: true,
 				minimizable: true,
@@ -88,8 +90,9 @@ var ViewFactory = function () {
 				],
 				//items: [pnl]
 			});
+
 			var w = Ext.create('erpify.view.table', { renderTo: Ext.getBody() }).show();
-			return w.id
+			return w
 
 
 		}, loadModel: function (viewId, modelName) {

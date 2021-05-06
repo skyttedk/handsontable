@@ -66,6 +66,7 @@ var MenuFactory = function () {
         title: 'Database',
         width: 200,
         height: 800,
+        region : 'west',
         tbar: searchBar,
         store: this.menuStore,
         rootVisible: false,
@@ -76,9 +77,17 @@ var MenuFactory = function () {
           //},
           itemdblclick: function (tree, record, index) {
             const modelName = record.raw.text
-            let view = new ViewFactory();
-            const viewId = view.init(modelName);
-            view.loadModel(viewId, modelName)
+            let viewFactory = new ViewFactory();
+            let view = viewFactory.init(modelName);
+            
+            https://stackoverflow.com/questions/6063896/extjs-dynamically-add-item-to-viewport-region/8395375
+            
+            window.viewPort.add(view);
+
+            //view.loadModel(view.id, modelName)//TODO...shomethis is wroong here
+            viewFactory.loadModel(view.id, modelName)//TODO...shomethis is wroong here
+            
+
           }
         }
       });
@@ -122,6 +131,7 @@ var MenuFactory = function () {
       });
 
       //this.menuStore.reload();
+      return tree
     }
   }
 

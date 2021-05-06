@@ -45,6 +45,8 @@ var ViewPortFactory = function () {
             //var w = Ext.create('erpify.view.table', { renderTo: Ext.getBody() }).show();
 
             //vp.items.add(w)
+            return vp
+            
         }
     }
 
